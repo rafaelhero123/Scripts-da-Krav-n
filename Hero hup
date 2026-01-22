@@ -1,0 +1,83 @@
+# Scripts-da-Kravon
+
+-- HERO HUP | Sistema ADM Oficial (100% permitido)
+
+local Players = game:GetService("Players")
+
+-- ===== CONFIGURAÇÃO =====
+local ADMINS = {
+	["SeuNomeAqui"] = true, -- troque pelo seu nome do Roblox
+}
+
+-- ===== FUNÇÕES =====
+
+local function getBase(player)
+	local bases = workspace:FindFirstChild("Bases")
+	if not bases then return nil end
+	return bases:FindFirstChild("Base_" .. player.Name)
+end
+
+local function teleportToBase(player)
+	local base = getBase(player)
+	if not base then return end
+
+	local tp = base:FindFirstChild("TeleportPoint")
+	if not tp then return end
+
+	local char = player.Character
+	if char and char:FindFirstChild("HumanoidRootPart") then
+		char.HumanoidRootPart.CFrame = tp.CFrame + Vector3.new(0, 3, 0)
+	end
+end
+
+local function setInvisible(player, state)
+	local char = player.Character
+	if not char then return end
+
+	for _, obj in pairs(char:GetDescendants()) do
+		if obj:IsA("BasePart") then
+			obj.Transparency = state and 1 or 0
+			obj.CanCollide = not state
+		end
+	end
+end
+
+local function setGod(player, state)
+	local char = player.Character
+	if not char then return end
+
+	local hum = char:FindFirstChild("Humanoid")
+	if hum then
+		hum.MaxHealth = state and math.huge or 100
+		hum.Health = hum.MaxHealth
+	end
+end
+
+-- ===== COMANDOS =====
+Players.PlayerAdded:Connect(function(player)
+	if not ADMINS[player.Name] then return end
+
+	player.Chatted:Connect(function(msg)
+		msg = msg:lower()
+
+		if msg == "!tpbase" then
+			teleportToBase(player)
+		end
+
+		if msg == "!invis on" then
+			setInvisible(player, true)
+		end
+
+		if msg == "!invis off" then
+			setInvisible(player, false)
+		end
+
+		if msg == "!god on" then
+			setGod(player, true)
+		end
+
+		if msg == "!god off" then
+			setGod(player, false)
+		end
+	end)
+end)
